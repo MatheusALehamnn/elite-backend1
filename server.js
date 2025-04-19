@@ -1,4 +1,12 @@
-const express = require('express');
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('✅ Conectado ao MongoDB'))
+.catch((err) => {
+  console.error('❌ Erro ao conectar ao MongoDB:', err.message);
+  process.exit(1); // força o app a parar se der erro
+});const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
