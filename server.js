@@ -44,6 +44,10 @@ app.get('/api/acompanhantes', async (req, res) => {
   res.json(dados);
 });
 
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
+
 // PORTA
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
