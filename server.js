@@ -6,7 +6,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: '*',
+  origin: process.env.FRONTEND_URL,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
