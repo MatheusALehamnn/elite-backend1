@@ -26,6 +26,8 @@ const verificarToken = (req, res, next) => {
 app.post('/api/cadastrar', verificarToken, async (req, res) => {
   const { nome, idade, local, foto, servicos, descricao } = req.body;
 
+  console.log('Dados recebidos para cadastro:', { nome, idade, local, foto, servicos, descricao });
+
   try {
     const novoAcompanhante = new Acompanhante({
       nome,
@@ -40,7 +42,7 @@ app.post('/api/cadastrar', verificarToken, async (req, res) => {
     res.status(201).json({ mensagem: 'Acompanhante cadastrado com sucesso!' });
   } catch (err) {
     console.error('Erro ao cadastrar acompanhante:', err);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    res.status(500).json({ erro: 'Erro interno no servidor', detalhes: err.message });
   }
 });
 
