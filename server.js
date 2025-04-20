@@ -62,10 +62,10 @@ const Usuario = require('./models/Usuario'); // ajuste o caminho se necessário
 
 // Rota de login
 app.post('/api/login', async (req, res) => {
-  const { usuario, senha } = req.body;
+  const { email, senha } = req.body;
 
   try {
-    const user = await Usuario.findOne({ usuario });
+    const user = await Usuario.findOne({ email });
     if (!user) return res.status(401).json({ erro: 'Usuário não encontrado' });
 
     const senhaValida = await bcrypt.compare(senha, user.senha);
