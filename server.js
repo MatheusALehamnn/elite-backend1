@@ -1,77 +1,55 @@
 const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
-const path = require('path');
+const Acompanhante = require('./models/Acompanhante');
+const app = express();
 
-const app = express(); // ✅ app criado antes de usar
-
-app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ Conectado ao MongoDB'))
-.catch((err) => {
-  console.error('❌ Erro ao conectar ao MongoDB:', err.message);
-  process.exit(1);
-});
+const verificarToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
 
-// MODELOS
-const Acompanhante = mongoose.model('Acompanhante', new mongoose.Schema({
-  nome: String,
-  idade: Number,
-  local: String,
-  foto: String,
-}));
+  if (!token) {
+    return res.status(401).json({ erro: 'Token não fornecido' });
+  }
 
-const Usuario = mongoose.model('Usuario', new mongoose.Schema({
-  usuario: String,
-  senha: String,
-}));
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ erro: 'Token inválido' });
+    }
+    req.usuarioId = decoded.id;
+    next();
+  });
+};
 
-// ROTAS BÁSICAS
-app.get('/', (req, res) => {
-  res.send('🎉 Backend Elite Acompanhantes está online!');
-});
+// Supondo que a rota /api/login já exista aqui
 
-app.get('/api/acompanhantes', async (req, res) => {
-  const dados = await Acompanhante.find();
-  res.json(dados);
-});
-
-app.get('/api/ping', (req, res) => {
-  res.send('pong');
-});
-
-app.post('/api/login', async (req, res) => {
-  const { usuario, senha } = req.body;
+app.post('/api/cadastrar', verificarToken, async (req, res) => {
+  const { nome, idade, local, foto, servicos, descricao } = req.body;
 
   try {
-    const user = await Usuario.findOne({ usuario });
-    if (!user) {
-      return res.status(404).json({ erro: 'Usuário não encontrado' });
-    }
+    const novoAcompanhante = new Acompanhante({
+      nome,
+      idade,
+      local,
+      foto,
+      servicos,
+      descricao,
+    });
 
-    const senhaCorreta = await bcrypt.compare(senha, user.senha);
-    if (!senhaCorreta) {
-      return res.status(401).json({ erro: 'Senha incorreta' });
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token });
+    await novoAcompanhante.save();
+    res.status(201).json({ mensagem: 'Acompanhante cadastrado com sucesso!' });
   } catch (err) {
-    console.error('Erro no login:', err);
+    console.error('Erro ao cadastrar acompanhante:', err);
     res.status(500).json({ erro: 'Erro interno no servidor' });
   }
 });
 
-// PORTA
+// Rota de verificação de funcionamento
+app.get('/api/ping', (req, res) => {
+  res.send('pong');
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
