@@ -44,7 +44,7 @@ app.get('/api/acompanhantes', async (req, res) => {
   res.json(dados);
 });
 
-app.get('/ping', (req, res) => {
+app.get('/api/ping', (req, res) => {
   res.send('pong');
 });
 
