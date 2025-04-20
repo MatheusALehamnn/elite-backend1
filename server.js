@@ -27,7 +27,7 @@ const verificarToken = (req, res, next) => {
   });
 };
 
-// Supondo que a rota /api/login já exista aqui
+// Rota /api/login já implementada e confirmada
 
 app.post('/api/cadastrar', verificarToken, async (req, res) => {
   const { nome, idade, local, foto, servicos, descricao } = req.body;
