@@ -1,9 +1,13 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Acompanhante = require('./models/Acompanhante');
+const cors = require('cors');
 const app = express();
 
 app.use(express.json());
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://elite-frontend-production.up.railway.app']
+}));
 
 const verificarToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
