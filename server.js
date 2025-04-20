@@ -6,7 +6,9 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://elite-frontend-production.up.railway.app']
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 const verificarToken = (req, res, next) => {
@@ -53,6 +55,27 @@ app.post('/api/cadastrar', verificarToken, async (req, res) => {
 // Rota de verificação de funcionamento
 app.get('/api/ping', (req, res) => {
   res.send('pong');
+});
+
+const bcrypt = require('bcrypt');
+const Usuario = require('./models/Usuario'); // ajuste o caminho se necessário
+
+// Rota de login
+app.post('/api/login', async (req, res) => {
+  const { usuario, senha } = req.body;
+
+  try {
+    const user = await Usuario.findOne({ usuario });
+    if (!user) return res.status(401).json({ erro: 'Usuário não encontrado' });
+
+    const senhaValida = await bcrypt.compare(senha, user.senha);
+    if (!senhaValida) return res.status(401).json({ erro: 'Senha inválida' });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro no servidor', detalhes: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
