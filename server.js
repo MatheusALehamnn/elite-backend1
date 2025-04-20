@@ -48,6 +48,28 @@ app.get('/api/ping', (req, res) => {
   res.send('pong');
 });
 
+app.post('/api/login', async (req, res) => {
+  const { usuario, senha } = req.body;
+
+  try {
+    const user = await Usuario.findOne({ usuario });
+    if (!user) {
+      return res.status(404).json({ erro: 'Usuário não encontrado' });
+    }
+
+    const senhaCorreta = await bcrypt.compare(senha, user.senha);
+    if (!senhaCorreta) {
+      return res.status(401).json({ erro: 'Senha incorreta' });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token });
+  } catch (err) {
+    console.error('Erro no login:', err);
+    res.status(500).json({ erro: 'Erro interno no servidor' });
+  }
+});
+
 // PORTA
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
