@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Acompanhante = require('./models/Acompanhante');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const app = express();
 
 app.use(express.json());
@@ -79,6 +80,17 @@ app.post('/api/login', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log('🟢 Conectado ao MongoDB com sucesso');
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
+})
+.catch((err) => {
+  console.error('🔴 Erro ao conectar ao MongoDB:', err.message);
 });
