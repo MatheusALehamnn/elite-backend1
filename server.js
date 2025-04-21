@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const Acompanhante = require('./models/Acompanhante');
 const cors = require('cors');
 const mongoose = require('mongoose');
+require('dotenv').config();
 const app = express();
 
 app.use(express.json());
@@ -81,7 +82,7 @@ app.post('/api/login', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
