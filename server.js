@@ -10,20 +10,20 @@ if (!process.env.FRONTEND_URL) {
 const app = express();
 
 app.use(express.json());
-app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigin = process.env.FRONTEND_URL?.replace(/\/$/, '');
-    const cleanedOrigin = origin?.replace(/\/$/, '');
-    if (!origin || cleanedOrigin === allowedOrigin) {
-      callback(null, true);
-    } else {
-      console.error(`❌ CORS bloqueado para origem: ${origin}`);
-      callback(new Error(`Not allowed by CORS: ${origin}`));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+const frontendURL = process.env.FRONTEND_URL?.replace(/\/$/, '');
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', frontendURL);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 const verificarToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
@@ -71,7 +71,7 @@ app.get('/api/ping', (req, res) => {
   res.send('pong');
 });
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const Usuario = require('./models/Usuario'); // ajuste o caminho se necessário
 
 // Rota de login
