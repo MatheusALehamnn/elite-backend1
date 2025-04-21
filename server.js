@@ -9,11 +9,12 @@ const app = express();
 app.use(express.json());
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigin = process.env.FRONTEND_URL;
-    if (origin === allowedOrigin) {
+    const allowedOrigin = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const cleanedOrigin = origin?.replace(/\/$/, '');
+    if (!origin || cleanedOrigin === allowedOrigin) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
