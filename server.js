@@ -4,16 +4,20 @@ const Acompanhante = require('./models/Acompanhante');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
+if (!process.env.FRONTEND_URL) {
+  console.error("FRONTEND_URL não definida no .env");
+}
 const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
     const allowedOrigin = process.env.FRONTEND_URL?.replace(/\/$/, '');
     const cleanedOrigin = origin?.replace(/\/$/, '');
     if (!origin || cleanedOrigin === allowedOrigin) {
       callback(null, true);
     } else {
+      console.error(`❌ CORS bloqueado para origem: ${origin}`);
       callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
